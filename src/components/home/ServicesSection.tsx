@@ -119,9 +119,9 @@ export const ServicesSection: React.FC = () => {
           <div className="lg:col-span-7 order-1 lg:order-2">
             <div className="relative h-[380px] sm:h-[480px] rounded-[6px] overflow-hidden border border-[#E7E7E5] bg-[#F7F7F5]">
               <img
-                src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1400&q=80"
+                src="/images/chauffeur-service.jpg"
                 alt="Executive Chauffeur Service Indore"
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-cover object-[center_65%]"
                 loading="lazy"
               />
               <div className="absolute top-4 left-4 bg-[#FFFFFF]/90 backdrop-blur-sm px-3 py-1 rounded-[2px] border border-[#E7E7E5] text-[10px] font-mono uppercase tracking-wider text-[#111318]">
