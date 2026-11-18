@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { INDORE_LOCATIONS } from '../../data/locations';
-import { calculateDuration, computeReturnSchedule } from '../../lib/utils';
+import {
+  calculateDuration,
+  computeReturnSchedule,
+  formatLocalDate,
+  getEarliestPickupSchedule,
+  validatePickupAdvanceTime,
+  MIN_ADVANCE_BOOKING_HOURS,
+} from '../../lib/utils';
 import {
   ArrowRight,
   AlertCircle,
@@ -27,33 +34,46 @@ export const BookingWidget: React.FC<BookingWidgetProps> = ({
   const navigate = useNavigate();
 
   const today = new Date();
-  const formatDate = (d: Date) => d.toISOString().split('T')[0];
+  const earliest = getEarliestPickupSchedule(MIN_ADVANCE_BOOKING_HOURS, today);
 
   const addDays = (base: Date, days: number) => {
     const next = new Date(base);
     next.setDate(base.getDate() + days);
-    return formatDate(next);
+    return formatLocalDate(next);
   };
 
-  const todayStr = formatDate(today);
+  const todayStr = formatLocalDate(today);
   const tomorrowStr = addDays(today, 1);
   const plus2Str = addDays(today, 2);
 
-  const initialPickupTime = '10:00';
-  const initialReturn = computeReturnSchedule(tomorrowStr, initialPickupTime, '24h');
+  // Default to tomorrow 10:00 if it's >= 4h away, otherwise use exact earliest +4h slot
+  const tomorrowCheck = validatePickupAdvanceTime(tomorrowStr, '10:00');
+  const initialPickupDate = tomorrowCheck.isValid ? tomorrowStr : earliest.minDate;
+  const initialPickupTime = tomorrowCheck.isValid ? '10:00' : earliest.minTime;
+  const initialReturn = computeReturnSchedule(initialPickupDate, initialPickupTime, '24h');
 
   const [rentalType, setRentalType] = useState<'Self-Drive' | 'Chauffeur'>(initialRentalType);
   const [packageDuration, setPackageDuration] = useState<'24h' | '12h'>('24h');
   const [pickupLoc, setPickupLoc] = useState('airport-idr');
   const [dropoffLoc, setDropoffLoc] = useState('airport-idr');
   const [sameReturnLocation, setSameReturnLocation] = useState(true);
-  const [pickupDate, setPickupDate] = useState(tomorrowStr);
+  const [pickupDate, setPickupDate] = useState(initialPickupDate);
   const [pickupTime, setPickupTime] = useState(initialPickupTime);
   const [returnDate, setReturnDate] = useState(initialReturn.returnDate);
   const [returnTime, setReturnTime] = useState(initialReturn.returnTime);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const effectiveDropoff = sameReturnLocation ? pickupLoc : dropoffLoc;
+
+  const applyEarliestSlot = () => {
+    const fresh = getEarliestPickupSchedule();
+    setPickupDate(fresh.minDate);
+    setPickupTime(fresh.minTime);
+    const next = computeReturnSchedule(fresh.minDate, fresh.minTime, packageDuration);
+    setReturnDate(next.returnDate);
+    setReturnTime(next.returnTime);
+    setValidationError(null);
+  };
 
   const handlePackageChange = (pkg: '24h' | '12h') => {
     setPackageDuration(pkg);
@@ -64,8 +84,15 @@ export const BookingWidget: React.FC<BookingWidgetProps> = ({
   };
 
   const handlePickupDateChange = (newDate: string) => {
+    const freshEarliest = getEarliestPickupSchedule();
+    let adjustedTime = pickupTime;
+    // If selecting the earliest day and chosen time is earlier than +4h, auto-snap to earliest valid time
+    if (newDate === freshEarliest.minDate && adjustedTime < freshEarliest.minTime) {
+      adjustedTime = freshEarliest.minTime;
+      setPickupTime(adjustedTime);
+    }
     setPickupDate(newDate);
-    const next = computeReturnSchedule(newDate, pickupTime, packageDuration);
+    const next = computeReturnSchedule(newDate, adjustedTime, packageDuration);
     setReturnDate(next.returnDate);
     setReturnTime(next.returnTime);
     setValidationError(null);
@@ -76,7 +103,8 @@ export const BookingWidget: React.FC<BookingWidgetProps> = ({
     const next = computeReturnSchedule(pickupDate, newTime, packageDuration);
     setReturnDate(next.returnDate);
     setReturnTime(next.returnTime);
-    setValidationError(null);
+    const advCheck = validatePickupAdvanceTime(pickupDate, newTime);
+    setValidationError(advCheck.isValid ? null : advCheck.errorMessage || null);
   };
 
   const handlePickupLocChange = (loc: string) => {
@@ -87,10 +115,20 @@ export const BookingWidget: React.FC<BookingWidgetProps> = ({
   };
 
   const duration = calculateDuration(pickupDate, pickupTime, returnDate, returnTime);
+  const advanceCheck = validatePickupAdvanceTime(pickupDate, pickupTime);
   const isAirport = pickupLoc === 'airport-idr' || effectiveDropoff === 'airport-idr';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const freshAdvCheck = validatePickupAdvanceTime(pickupDate, pickupTime);
+    if (!freshAdvCheck.isValid) {
+      setValidationError(
+        freshAdvCheck.errorMessage ||
+          `Minimum ${MIN_ADVANCE_BOOKING_HOURS}-hour advance booking required.`
+      );
+      return;
+    }
 
     if (!duration.isValid) {
       setValidationError(duration.errorMessage || 'Return date & time must be after pickup.');
@@ -284,32 +322,43 @@ export const BookingWidget: React.FC<BookingWidgetProps> = ({
           </div>
         </div>
 
-        {/* Quick Pickup Day Chips (Mobile-First Ergonomics) */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#888888] shrink-0">
-            Quick Pickup:
+        {/* Quick Pickup Day Chips + 4-Hour Pre-Book Notice */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#888888] shrink-0">
+              Quick Pickup:
+            </span>
+            {[
+              ...(earliest.minDate === todayStr
+                ? [{ label: `Today (${earliest.displayLabel.split(', ')[1]})`, date: todayStr, snapEarliest: true }]
+                : []),
+              { label: 'Tomorrow', date: tomorrowStr, snapEarliest: false },
+              { label: 'In 2 Days', date: plus2Str, snapEarliest: false },
+            ].map((chip) => {
+              const active = pickupDate === chip.date;
+              return (
+                <button
+                  key={chip.label}
+                  type="button"
+                  onClick={() =>
+                    chip.snapEarliest ? applyEarliestSlot() : handlePickupDateChange(chip.date)
+                  }
+                  className={`px-3 py-1.5 rounded-[4px] text-[11px] font-medium border transition-colors whitespace-nowrap ${
+                    active
+                      ? 'bg-[#111318] text-white border-[#111318]'
+                      : 'bg-[#F7F7F5] text-[#555555] border-[#E7E7E5] hover:border-[#111318]'
+                  }`}
+                >
+                  {chip.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <span className="text-[10px] font-mono text-[#666666] flex items-center gap-1">
+            <Clock className="w-3 h-3 text-[#286BFF] shrink-0" />
+            <span>Pre-book: 4h Hatchback • 24h SUV / Sedan / Compact SUV</span>
           </span>
-          {[
-            { label: 'Today', date: todayStr },
-            { label: 'Tomorrow', date: tomorrowStr },
-            { label: 'In 2 Days', date: plus2Str },
-          ].map((chip) => {
-            const active = pickupDate === chip.date;
-            return (
-              <button
-                key={chip.label}
-                type="button"
-                onClick={() => handlePickupDateChange(chip.date)}
-                className={`px-3 py-1.5 rounded-[4px] text-[11px] font-medium border transition-colors whitespace-nowrap ${
-                  active
-                    ? 'bg-[#111318] text-white border-[#111318]'
-                    : 'bg-[#F7F7F5] text-[#555555] border-[#E7E7E5] hover:border-[#111318]'
-                }`}
-              >
-                {chip.label}
-              </button>
-            );
-          })}
         </div>
 
         {/* Paired Pickup & Return Schedule Cards */}
@@ -330,7 +379,7 @@ export const BookingWidget: React.FC<BookingWidgetProps> = ({
               <input
                 type="date"
                 value={pickupDate}
-                min={todayStr}
+                min={earliest.minDate}
                 onChange={(e) => handlePickupDateChange(e.target.value)}
                 className="w-full min-w-0 min-h-[46px] sm:min-h-[42px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-2.5 sm:px-3 py-2 text-base sm:text-xs text-[#171717] font-medium focus:outline-none"
                 required
@@ -338,6 +387,7 @@ export const BookingWidget: React.FC<BookingWidgetProps> = ({
               <input
                 type="time"
                 value={pickupTime}
+                min={pickupDate === earliest.minDate ? earliest.minTime : undefined}
                 onChange={(e) => handlePickupTimeChange(e.target.value)}
                 className="w-full min-w-0 min-h-[46px] sm:min-h-[42px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-2.5 sm:px-3 py-2 text-base sm:text-xs text-[#171717] font-mono font-medium focus:outline-none"
                 required
@@ -383,10 +433,21 @@ export const BookingWidget: React.FC<BookingWidgetProps> = ({
           </div>
         </div>
 
-        {validationError && (
-          <div className="p-3 rounded-[4px] bg-[#FFF5F5] border border-[#FED7D7] text-xs text-[#C53030] flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-[#E53E3E] shrink-0" />
-            <span>{validationError}</span>
+        {(validationError || !advanceCheck.isValid) && (
+          <div className="p-3 rounded-[4px] bg-[#FFF5F5] border border-[#FED7D7] text-xs text-[#C53030] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-[#E53E3E] shrink-0" />
+              <span>{validationError || advanceCheck.errorMessage}</span>
+            </div>
+            {!advanceCheck.isValid && (
+              <button
+                type="button"
+                onClick={applyEarliestSlot}
+                className="px-3 py-1.5 rounded-[4px] bg-[#111318] text-white text-[11px] font-semibold whitespace-nowrap self-start sm:self-auto"
+              >
+                Use {earliest.displayLabel}
+              </button>
+            )}
           </div>
         )}
 

@@ -3,6 +3,7 @@ import { Hero } from '../components/home/Hero';
 import { ServicesSection } from '../components/home/ServicesSection';
 import { FleetSection } from '../components/home/FleetSection';
 import { AirportSection } from '../components/home/AirportSection';
+import { DestinationsSection } from '../components/home/DestinationsSection';
 import { WhyUsSection } from '../components/home/WhyUsSection';
 import { FinalCtaSection } from '../components/home/FinalCtaSection';
 import { updateMetaTags, AIRGOCABS_LOCAL_BUSINESS_SCHEMA } from '../lib/seo';
@@ -22,6 +23,7 @@ export const HomePage: React.FC = () => {
       <ServicesSection />
       <FleetSection />
       <AirportSection />
+      <DestinationsSection />
       <WhyUsSection />
       <FinalCtaSection />
     </div>

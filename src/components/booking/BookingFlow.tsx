@@ -24,6 +24,11 @@ import {
   formatINR,
   calculateDuration,
   computeReturnSchedule,
+  formatLocalDate,
+  getEarliestPickupSchedule,
+  getMinAdvanceHoursForCategory,
+  validatePickupAdvanceTime,
+  MIN_ADVANCE_BOOKING_HOURS,
   generateBookingId,
 } from '../../lib/utils';
 import { buildBookingWhatsAppUrl } from '../../lib/whatsapp';
@@ -50,11 +55,23 @@ export const BookingFlow: React.FC = () => {
   const queryRTime = searchParams.get('rTime') || '';
 
   const today = new Date();
-  const formatDate = (d: Date) => d.toISOString().split('T')[0];
+  const initialMinHours = getMinAdvanceHoursForCategory(queryCategory);
+  const initialEarliest = getEarliestPickupSchedule(initialMinHours, today);
   const defaultPickup = new Date(today);
   defaultPickup.setDate(today.getDate() + 1);
-  const initialPickupDate = queryPDate || formatDate(defaultPickup);
-  const initialReturn = computeReturnSchedule(initialPickupDate, queryPTime, queryPkg);
+  const defaultTomorrowStr = formatLocalDate(defaultPickup);
+  const defaultTomorrowCheck = validatePickupAdvanceTime(defaultTomorrowStr, queryPTime, initialMinHours);
+
+  let initialPickupDate = queryPDate || (defaultTomorrowCheck.isValid ? defaultTomorrowStr : initialEarliest.minDate);
+  let initialPickupTime = queryPDate ? queryPTime : (defaultTomorrowCheck.isValid ? queryPTime : initialEarliest.minTime);
+
+  // If URL params came in with a slot earlier than required advance notice, auto-adjust
+  if (!validatePickupAdvanceTime(initialPickupDate, initialPickupTime, initialMinHours).isValid) {
+    initialPickupDate = initialEarliest.minDate;
+    initialPickupTime = initialEarliest.minTime;
+  }
+
+  const initialReturn = computeReturnSchedule(initialPickupDate, initialPickupTime, queryPkg);
 
   // Flow State
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -69,13 +86,18 @@ export const BookingFlow: React.FC = () => {
   const [isAirportHandover, setIsAirportHandover] = useState(queryIsAirport);
   const [flightNumber, setFlightNumber] = useState(queryFlight);
   const [pickupDate, setPickupDate] = useState(initialPickupDate);
-  const [pickupTime, setPickupTime] = useState(queryPTime);
-  const [returnDate, setReturnDate] = useState(queryRDate || initialReturn.returnDate);
-  const [returnTime, setReturnTime] = useState(queryRTime || initialReturn.returnTime);
+  const [pickupTime, setPickupTime] = useState(initialPickupTime);
+  const [returnDate, setReturnDate] = useState(queryRDate && queryPDate === initialPickupDate ? queryRDate : initialReturn.returnDate);
+  const [returnTime, setReturnTime] = useState(queryRTime && queryPDate === initialPickupDate ? queryRTime : initialReturn.returnTime);
 
   // Selected Vehicle
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+
+  // Dynamic category-based pre-booking rule: 4h for Hatchback, 24h for SUV / Sedan / Compact SUV
+  const activeCategoryForRule = selectedVehicle ? selectedVehicle.category : selectedCategory;
+  const minAdvanceHours = getMinAdvanceHoursForCategory(activeCategoryForRule);
+  const earliest = getEarliestPickupSchedule(minAdvanceHours);
 
   // Customer Information
   const [customerName, setCustomerName] = useState('');
@@ -131,9 +153,64 @@ export const BookingFlow: React.FC = () => {
     setReturnTime(next.returnTime);
   };
 
+  const applyEarliestPickup = (overrideHours?: number) => {
+    const hrs = overrideHours ?? minAdvanceHours;
+    const fresh = getEarliestPickupSchedule(hrs);
+    setPickupDate(fresh.minDate);
+    setPickupTime(fresh.minTime);
+    const next = computeReturnSchedule(fresh.minDate, fresh.minTime, packageDuration);
+    setReturnDate(next.returnDate);
+    setReturnTime(next.returnTime);
+    setErrorMessage(null);
+  };
+
+  const handleCategorySelect = (cat: VehicleCategory | 'All') => {
+    setSelectedCategory(cat);
+    const reqHours = getMinAdvanceHoursForCategory(cat);
+    const check = validatePickupAdvanceTime(pickupDate, pickupTime, reqHours);
+    if (!check.isValid) {
+      setPickupDate(check.earliest.minDate);
+      setPickupTime(check.earliest.minTime);
+      const next = computeReturnSchedule(check.earliest.minDate, check.earliest.minTime, packageDuration);
+      setReturnDate(next.returnDate);
+      setReturnTime(next.returnTime);
+    }
+    setErrorMessage(null);
+  };
+
+  const handleVehicleConfirm = (v: Vehicle, advanceToStep5: boolean = false) => {
+    setSelectedVehicle(v);
+    const reqHours = getMinAdvanceHoursForCategory(v.category);
+    const check = validatePickupAdvanceTime(pickupDate, pickupTime, reqHours, `${v.name} (${v.category})`);
+    if (!check.isValid) {
+      setErrorMessage(
+        check.errorMessage ||
+          `Minimum ${reqHours}-hour advance pre-booking required for ${v.category}.`
+      );
+      if (advanceToStep5) {
+        goToStep(3);
+        setErrorMessage(
+          check.errorMessage ||
+            `Minimum ${reqHours}-hour advance pre-booking required for ${v.category}.`
+        );
+      }
+      return;
+    }
+    setErrorMessage(null);
+    if (advanceToStep5) {
+      goToStep(5);
+    }
+  };
+
   const handlePickupDateChange = (newDate: string) => {
+    const fresh = getEarliestPickupSchedule(minAdvanceHours);
+    let adjustedTime = pickupTime;
+    if (newDate === fresh.minDate && adjustedTime < fresh.minTime) {
+      adjustedTime = fresh.minTime;
+      setPickupTime(adjustedTime);
+    }
     setPickupDate(newDate);
-    const next = computeReturnSchedule(newDate, pickupTime, packageDuration);
+    const next = computeReturnSchedule(newDate, adjustedTime, packageDuration);
     setReturnDate(next.returnDate);
     setReturnTime(next.returnTime);
     setErrorMessage(null);
@@ -144,7 +221,9 @@ export const BookingFlow: React.FC = () => {
     const next = computeReturnSchedule(pickupDate, newTime, packageDuration);
     setReturnDate(next.returnDate);
     setReturnTime(next.returnTime);
-    setErrorMessage(null);
+    const label = activeCategoryForRule !== 'All' ? activeCategoryForRule : undefined;
+    const adv = validatePickupAdvanceTime(pickupDate, newTime, minAdvanceHours, label);
+    setErrorMessage(adv.isValid ? null : adv.errorMessage || null);
   };
 
   const handlePickupLocChange = (loc: string) => {
@@ -164,7 +243,16 @@ export const BookingFlow: React.FC = () => {
       if (found) {
         setSelectedVehicle(found);
         setSelectedCategory(found.category);
-        if (queryPDate && queryRDate) {
+        const reqHours = getMinAdvanceHoursForCategory(found.category);
+        const check = validatePickupAdvanceTime(pickupDate, pickupTime, reqHours);
+        if (!check.isValid) {
+          setPickupDate(check.earliest.minDate);
+          setPickupTime(check.earliest.minTime);
+          const next = computeReturnSchedule(check.earliest.minDate, check.earliest.minTime, packageDuration);
+          setReturnDate(next.returnDate);
+          setReturnTime(next.returnTime);
+        }
+        if (queryPDate && queryRDate && check.isValid) {
           setCurrentStep(5);
         } else {
           setCurrentStep(3);
@@ -211,6 +299,14 @@ export const BookingFlow: React.FC = () => {
   const prices = calculatePrices();
 
   const validateTripDetails = (): boolean => {
+    const label = activeCategoryForRule !== 'All' ? activeCategoryForRule : undefined;
+    const adv = validatePickupAdvanceTime(pickupDate, pickupTime, minAdvanceHours, label);
+    if (!adv.isValid) {
+      setErrorMessage(
+        adv.errorMessage || `Minimum ${minAdvanceHours}-hour advance pre-booking required.`
+      );
+      return false;
+    }
     if (!duration.isValid) {
       setErrorMessage(duration.errorMessage || 'Return date & time must be after pickup date & time.');
       return false;
@@ -242,6 +338,20 @@ export const BookingFlow: React.FC = () => {
 
   const handleFinalSubmit = async () => {
     if (!selectedVehicle) return;
+    const reqHours = getMinAdvanceHoursForCategory(selectedVehicle.category);
+    const adv = validatePickupAdvanceTime(
+      pickupDate,
+      pickupTime,
+      reqHours,
+      `${selectedVehicle.name} (${selectedVehicle.category})`
+    );
+    if (!adv.isValid) {
+      goToStep(3);
+      setErrorMessage(
+        adv.errorMessage || `Minimum ${reqHours}-hour advance pre-booking required.`
+      );
+      return;
+    }
     setIsSubmitting(true);
     setErrorMessage(null);
 
@@ -319,7 +429,7 @@ export const BookingFlow: React.FC = () => {
         goToStep(selectedVehicle ? 5 : 4);
       }
     } else if (currentStep === 4) {
-      if (selectedVehicle) goToStep(5);
+      if (selectedVehicle) handleVehicleConfirm(selectedVehicle, true);
     } else if (currentStep === 5) {
       if (validateCustomerInfo()) goToStep(6);
     } else if (currentStep === 6) {
@@ -632,7 +742,7 @@ export const BookingFlow: React.FC = () => {
                 num: '01',
                 title: 'Hatchback',
                 desc: 'Swift, Baleno, Glanza, Fronx, Dzire, Aura, Nexon',
-                seats: '5 Seats',
+                seats: '5 Seats • 4h pre-book',
                 price: packageDuration === '12h' ? 'From ₹1,499' : 'From ₹2,199',
               },
               {
@@ -640,7 +750,7 @@ export const BookingFlow: React.FC = () => {
                 num: '02',
                 title: 'Compact SUV',
                 desc: 'Creta, Sonet, Brezza',
-                seats: '5 Seats',
+                seats: '5 Seats • 24h pre-book',
                 price: packageDuration === '12h' ? 'From ₹1,999' : 'From ₹2,999',
               },
               {
@@ -648,7 +758,7 @@ export const BookingFlow: React.FC = () => {
                 num: '03',
                 title: 'SUV',
                 desc: 'Harrier, Scorpio-N/S11, Thar, XUV700, Safari, Fortuner, Innova',
-                seats: '4–7 Seats',
+                seats: '4–7 Seats • 24h pre-book',
                 price: packageDuration === '12h' ? 'From ₹1,999' : 'From ₹2,999',
               },
               {
@@ -656,7 +766,7 @@ export const BookingFlow: React.FC = () => {
                 num: '04',
                 title: 'Sedan',
                 desc: 'Verna, Slavia',
-                seats: '5 Seats',
+                seats: '5 Seats • 24h pre-book',
                 price: packageDuration === '12h' ? 'From ₹2,499' : 'From ₹3,499',
               },
             ].map((cat) => {
@@ -665,7 +775,7 @@ export const BookingFlow: React.FC = () => {
                 <button
                   key={cat.id}
                   type="button"
-                  onClick={() => setSelectedCategory(cat.id as VehicleCategory)}
+                  onClick={() => handleCategorySelect(cat.id as VehicleCategory)}
                   className={`text-left p-3.5 sm:p-5 rounded-[4px] border transition-all flex flex-col justify-between space-y-3 ${
                     active
                       ? 'border-[#111318] bg-[#F7F7F5] ring-1 ring-[#111318]'
@@ -846,6 +956,36 @@ export const BookingFlow: React.FC = () => {
             </div>
           </div>
 
+          {/* Dynamic Category Pre-Booking Notice (4h Hatchback / 24h SUV, Sedan & Compact SUV) */}
+          <div className="p-3 bg-[#F7F7F5] border border-[#E7E7E5] rounded-[4px] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <div className="flex items-start sm:items-center gap-2 text-[#444850]">
+              <Clock className="w-4 h-4 text-[#286BFF] shrink-0 mt-0.5 sm:mt-0" />
+              <span>
+                <strong>
+                  {minAdvanceHours === 24
+                    ? `24-Hour Pre-Booking Policy (${activeCategoryForRule}):`
+                    : activeCategoryForRule === 'Hatchback'
+                    ? '4-Hour Pre-Booking Policy (Hatchback):'
+                    : 'Pre-Booking Policy:'}
+                </strong>{' '}
+                {minAdvanceHours === 24
+                  ? `SUV, Sedan & Compact SUV bookings require minimum 24 hours advance notice.`
+                  : activeCategoryForRule === 'Hatchback'
+                  ? `Hatchbacks require minimum 4 hours advance notice.`
+                  : `4h advance for Hatchback • 24h advance for Compact SUV, SUV & Sedan.`}{' '}
+                Earliest pickup:{' '}
+                <strong className="text-[#111318] font-mono">{earliest.displayLabel}</strong>
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => applyEarliestPickup()}
+              className="px-3 py-1.5 rounded-[4px] bg-[#FFFFFF] border border-[#E7E7E5] hover:border-[#111318] text-[11px] font-semibold text-[#111318] whitespace-nowrap self-start sm:self-auto transition-colors"
+            >
+              Use Earliest Slot
+            </button>
+          </div>
+
           {/* Paired Pickup & Return Date/Time Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div className="p-3.5 bg-[#F7F7F5] border border-[#E7E7E5] rounded-[4px] space-y-2">
@@ -863,13 +1003,14 @@ export const BookingFlow: React.FC = () => {
                 <input
                   type="date"
                   value={pickupDate}
-                  min={formatDate(today)}
+                  min={earliest.minDate}
                   onChange={(e) => handlePickupDateChange(e.target.value)}
                   className="w-full min-w-0 min-h-[46px] sm:min-h-[42px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-2.5 py-2 text-base sm:text-xs text-[#171717] font-medium focus:outline-none"
                 />
                 <input
                   type="time"
                   value={pickupTime}
+                  min={pickupDate === earliest.minDate ? earliest.minTime : undefined}
                   onChange={(e) => handlePickupTimeChange(e.target.value)}
                   className="w-full min-w-0 min-h-[46px] sm:min-h-[42px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-2.5 py-2 text-base sm:text-xs text-[#171717] font-mono font-medium focus:outline-none"
                 />
@@ -891,7 +1032,7 @@ export const BookingFlow: React.FC = () => {
                 <input
                   type="date"
                   value={returnDate}
-                  min={pickupDate || formatDate(today)}
+                  min={pickupDate || earliest.minDate}
                   onChange={(e) => {
                     setReturnDate(e.target.value);
                     setErrorMessage(null);
@@ -988,6 +1129,8 @@ export const BookingFlow: React.FC = () => {
             {filteredStep4Vehicles.map((v) => {
               const isSelected = selectedVehicle?.id === v.id;
               const isChauffeur = rentalType === 'Chauffeur';
+              const carMinHours = getMinAdvanceHoursForCategory(v.category);
+              const carTimeCheck = validatePickupAdvanceTime(pickupDate, pickupTime, carMinHours);
               const tripTotal =
                 packageDuration === '12h'
                   ? isChauffeur
@@ -999,7 +1142,7 @@ export const BookingFlow: React.FC = () => {
               return (
                 <div
                   key={v.id}
-                  onClick={() => setSelectedVehicle(v)}
+                  onClick={() => handleVehicleConfirm(v, false)}
                   className={`cursor-pointer border rounded-[4px] overflow-hidden flex flex-col justify-between transition-all ${
                     isSelected
                       ? 'border-[#111318] bg-[#F7F7F5] ring-1 ring-[#111318]'
@@ -1013,8 +1156,15 @@ export const BookingFlow: React.FC = () => {
                       loading="lazy"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-3 left-3 bg-[#FFFFFF]/95 px-2 py-0.5 text-[10px] font-mono text-[#111318] border border-[#E7E7E5]">
-                      {v.category}
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                      <span className="bg-[#FFFFFF]/95 px-2 py-0.5 text-[10px] font-mono text-[#111318] border border-[#E7E7E5]">
+                        {v.category}
+                      </span>
+                      {carMinHours === 24 && (
+                        <span className="bg-[#111318]/90 px-2 py-0.5 text-[10px] font-mono text-white">
+                          24h Pre-Book
+                        </span>
+                      )}
                     </div>
                     {isSelected && (
                       <div className="absolute top-3 right-3 bg-[#111318] text-white p-1.5 rounded-full">
@@ -1053,12 +1203,17 @@ export const BookingFlow: React.FC = () => {
                       <span>Extra: ₹{isChauffeur ? 8 : 6}/km</span>
                     </div>
 
+                    {!carTimeCheck.isValid && (
+                      <div className="text-[10px] font-mono text-amber-700 bg-amber-50 border border-amber-200 rounded-[4px] px-2.5 py-1.5">
+                        Requires 24h advance notice (earliest: {carTimeCheck.earliest.displayLabel})
+                      </div>
+                    )}
+
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedVehicle(v);
-                        goToStep(5);
+                        handleVehicleConfirm(v, true);
                       }}
                       className={`w-full min-h-[44px] py-2.5 rounded-[4px] text-xs font-semibold transition-colors ${
                         isSelected
@@ -1066,7 +1221,11 @@ export const BookingFlow: React.FC = () => {
                           : 'bg-[#FFFFFF] border border-[#E7E7E5] text-[#171717] hover:bg-[#111318] hover:text-white'
                       }`}
                     >
-                      {isSelected ? 'Selected — Continue' : 'Select & Continue'}
+                      {!carTimeCheck.isValid
+                        ? 'Select & Adjust Pickup Time'
+                        : isSelected
+                        ? 'Selected — Continue'
+                        : 'Select & Continue'}
                     </button>
                   </div>
                 </div>

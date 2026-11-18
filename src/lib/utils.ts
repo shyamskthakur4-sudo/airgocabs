@@ -71,6 +71,120 @@ export function calculateDuration(
   };
 }
 
+export const MIN_ADVANCE_BOOKING_HOURS = 4;
+export const MIN_ADVANCE_BOOKING_HOURS_EXTENDED = 24;
+
+export function getMinAdvanceHoursForCategory(category?: string | null): number {
+  if (
+    category === 'SUV' ||
+    category === 'Sedan' ||
+    category === 'Compact SUV' ||
+    category === 'Premium'
+  ) {
+    return MIN_ADVANCE_BOOKING_HOURS_EXTENDED;
+  }
+  return MIN_ADVANCE_BOOKING_HOURS;
+}
+
+export function formatLocalDate(d: Date): string {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+export function formatLocalTime(d: Date): string {
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${hh}:${min}`;
+}
+
+export interface EarliestPickupResult {
+  minDate: string;
+  minTime: string;
+  dateObj: Date;
+  displayLabel: string;
+}
+
+export function getEarliestPickupSchedule(
+  minHours: number = MIN_ADVANCE_BOOKING_HOURS,
+  now: Date = new Date()
+): EarliestPickupResult {
+  // Add minHours and round up to next 15-minute increment for clean scheduling
+  const rawMs = now.getTime() + minHours * 60 * 60 * 1000;
+  const fifteenMinMs = 15 * 60 * 1000;
+  const roundedMs = Math.ceil(rawMs / fifteenMinMs) * fifteenMinMs;
+  const dateObj = new Date(roundedMs);
+
+  const minDate = formatLocalDate(dateObj);
+  const minTime = formatLocalTime(dateObj);
+
+  const todayStr = formatLocalDate(now);
+  const tomorrow = new Date(now);
+  tomorrow.setDate(now.getDate() + 1);
+  const tomorrowStr = formatLocalDate(tomorrow);
+
+  const dayPrefix =
+    minDate === todayStr
+      ? 'Today'
+      : minDate === tomorrowStr
+      ? 'Tomorrow'
+      : dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+
+  const time12h = dateObj.toLocaleTimeString('en-IN', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  return {
+    minDate,
+    minTime,
+    dateObj,
+    displayLabel: `${dayPrefix}, ${time12h}`,
+  };
+}
+
+export function validatePickupAdvanceTime(
+  pickupDate: string,
+  pickupTime: string,
+  minHours: number = MIN_ADVANCE_BOOKING_HOURS,
+  categoryLabel?: string
+): { isValid: boolean; errorMessage?: string; earliest: EarliestPickupResult } {
+  const now = new Date();
+  const earliest = getEarliestPickupSchedule(minHours, now);
+
+  if (!pickupDate) {
+    return {
+      isValid: false,
+      errorMessage: `Please select a pickup date at least ${minHours} hours from now.`,
+      earliest,
+    };
+  }
+
+  const start = new Date(`${pickupDate}T${pickupTime || '10:00'}`);
+  if (isNaN(start.getTime())) {
+    return {
+      isValid: false,
+      errorMessage: 'Please enter a valid pickup date and time.',
+      earliest,
+    };
+  }
+
+  // Allow 1-minute grace window so picking the exact earliest slot doesn't fail on submit
+  const minAllowedMs = now.getTime() + minHours * 60 * 60 * 1000 - 60 * 1000;
+  if (start.getTime() < minAllowedMs) {
+    const scope = categoryLabel ? ` for ${categoryLabel}` : '';
+    return {
+      isValid: false,
+      errorMessage: `Minimum ${minHours}-hour advance pre-booking required${scope}. Earliest pickup: ${earliest.displayLabel}.`,
+      earliest,
+    };
+  }
+
+  return { isValid: true, earliest };
+}
+
 export function computeReturnSchedule(
   pickupDate: string,
   pickupTime: string,
@@ -83,13 +197,8 @@ export function computeReturnSchedule(
   }
   const addHours = pkg === '12h' ? 12 : 24;
   const end = new Date(start.getTime() + addHours * 60 * 60 * 1000);
-  const yyyy = end.getFullYear();
-  const mm = String(end.getMonth() + 1).padStart(2, '0');
-  const dd = String(end.getDate()).padStart(2, '0');
-  const hh = String(end.getHours()).padStart(2, '0');
-  const min = String(end.getMinutes()).padStart(2, '0');
   return {
-    returnDate: `${yyyy}-${mm}-${dd}`,
-    returnTime: `${hh}:${min}`,
+    returnDate: formatLocalDate(end),
+    returnTime: formatLocalTime(end),
   };
 }

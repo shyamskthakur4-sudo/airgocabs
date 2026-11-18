@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, AlertCircle, Clock } from 'lucide-react';
 import { CHAUFFEUR_PACKAGES } from '../data/policies';
 import { INDORE_LOCATIONS } from '../data/locations';
 import { updateMetaTags } from '../lib/seo';
+import {
+  getEarliestPickupSchedule,
+  getMinAdvanceHoursForCategory,
+  validatePickupAdvanceTime,
+} from '../lib/utils';
 
 export const ChauffeurPage: React.FC = () => {
   const navigate = useNavigate();
@@ -11,14 +16,26 @@ export const ChauffeurPage: React.FC = () => {
   const [tripType, setTripType] = useState<'Local City' | 'Airport Transfer' | 'Outstation (Ujjain/Omkareshwar)'>('Local City');
   const [pickupLoc, setPickupLoc] = useState('vijay-nagar');
   const [destination, setDestination] = useState('Indore Municipal Limits / Brilliant Convention Centre');
-  const [travelDate, setTravelDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    return d.toISOString().split('T')[0];
-  });
-  const [travelTime, setTravelTime] = useState('09:00');
   const [selectedCategory, setSelectedCategory] = useState<'Hatchback' | 'Compact SUV' | 'Sedan' | 'SUV'>('Sedan');
   const [selectedPackage, setSelectedPackage] = useState<'24h' | '12h'>('24h');
+
+  const minAdvanceHours = getMinAdvanceHoursForCategory(selectedCategory);
+  const earliest = getEarliestPickupSchedule(minAdvanceHours);
+
+  const [travelDate, setTravelDate] = useState(() => getEarliestPickupSchedule(24).minDate);
+  const [travelTime, setTravelTime] = useState(() => getEarliestPickupSchedule(24).minTime);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const handleCategoryChange = (newCat: 'Hatchback' | 'Compact SUV' | 'Sedan' | 'SUV') => {
+    setSelectedCategory(newCat);
+    const reqHours = getMinAdvanceHoursForCategory(newCat);
+    const check = validatePickupAdvanceTime(travelDate, travelTime, reqHours, newCat);
+    if (!check.isValid) {
+      setTravelDate(check.earliest.minDate);
+      setTravelTime(check.earliest.minTime);
+    }
+    setFormError(null);
+  };
 
   useEffect(() => {
     updateMetaTags({
@@ -29,6 +46,14 @@ export const ChauffeurPage: React.FC = () => {
 
   const handleChauffeurSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    const advCheck = validatePickupAdvanceTime(travelDate, travelTime, minAdvanceHours, selectedCategory);
+    if (!advCheck.isValid) {
+      setFormError(
+        advCheck.errorMessage || `Minimum ${minAdvanceHours}-hour advance pre-booking required for ${selectedCategory}.`
+      );
+      return;
+    }
+    setFormError(null);
     const params = new URLSearchParams({
       type: 'Chauffeur',
       pkg: selectedPackage,
@@ -219,8 +244,16 @@ export const ChauffeurPage: React.FC = () => {
                     <label className="text-[11px] font-semibold uppercase text-[#666666]">Date</label>
                     <input
                       type="date"
+                      min={earliest.minDate}
                       value={travelDate}
-                      onChange={(e) => setTravelDate(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setTravelDate(val);
+                        if (val === earliest.minDate && travelTime < earliest.minTime) {
+                          setTravelTime(earliest.minTime);
+                        }
+                        setFormError(null);
+                      }}
                       className="w-full min-w-0 min-h-[48px] sm:min-h-[44px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-3 py-2.5 text-base sm:text-xs text-[#171717] focus:outline-none"
                     />
                   </div>
@@ -229,12 +262,28 @@ export const ChauffeurPage: React.FC = () => {
                     <label className="text-[11px] font-semibold uppercase text-[#666666]">Time</label>
                     <input
                       type="time"
+                      min={travelDate === earliest.minDate ? earliest.minTime : undefined}
                       value={travelTime}
-                      onChange={(e) => setTravelTime(e.target.value)}
+                      onChange={(e) => {
+                        setTravelTime(e.target.value);
+                        setFormError(null);
+                      }}
                       className="w-full min-w-0 min-h-[48px] sm:min-h-[44px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-3 py-2.5 text-base sm:text-xs text-[#171717] font-mono focus:outline-none"
                     />
                   </div>
                 </div>
+
+                <div className="sm:col-span-2 flex items-center gap-1.5 text-[11px] font-mono text-[#666666]">
+                  <Clock className="w-3.5 h-3.5 text-[#286BFF] shrink-0" />
+                  <span>Min {minAdvanceHours}-hour advance pre-booking ({selectedCategory}) • Earliest: {earliest.displayLabel}</span>
+                </div>
+
+                {formError && (
+                  <div className="sm:col-span-2 p-3 rounded-[4px] bg-[#FFF5F5] border border-[#FED7D7] text-xs text-[#C53030] flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-[#E53E3E] shrink-0" />
+                    <span>{formError}</span>
+                  </div>
+                )}
 
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-semibold uppercase text-[#666666]">Package Duration</label>
@@ -252,13 +301,13 @@ export const ChauffeurPage: React.FC = () => {
                   <label className="text-[11px] font-semibold uppercase text-[#666666]">Vehicle Segment</label>
                   <select
                     value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value as any)}
+                    onChange={(e) => handleCategoryChange(e.target.value as any)}
                     className="w-full min-h-[48px] sm:min-h-[44px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-3 py-2.5 text-base sm:text-xs text-[#171717] focus:outline-none"
                   >
-                    <option value="Hatchback">Hatchback (Swift / Baleno / Glanza / Dzire)</option>
-                    <option value="Compact SUV">Compact SUV (Creta / Sonet / Brezza)</option>
-                    <option value="Sedan">Executive Sedan (Verna / Slavia)</option>
-                    <option value="SUV">SUV / 7-Seater (Innova / XUV 7OO / Scorpio-N / Fortuner)</option>
+                    <option value="Hatchback">Hatchback — 4h pre-book (Swift / Baleno / Glanza / Dzire)</option>
+                    <option value="Compact SUV">Compact SUV — 24h pre-book (Creta / Sonet / Brezza)</option>
+                    <option value="Sedan">Executive Sedan — 24h pre-book (Verna / Slavia)</option>
+                    <option value="SUV">SUV / 7-Seater — 24h pre-book (Innova / XUV 7OO / Scorpio-N / Fortuner)</option>
                   </select>
                 </div>
               </div>
