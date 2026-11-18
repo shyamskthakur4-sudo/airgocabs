@@ -139,14 +139,30 @@ export const FleetSection: React.FC<FleetSectionProps> = () => {
         </div>
 
         {/* View Entire Fleet CTA */}
-        <div className="pt-8 text-center border-t border-[#E7E7E5]">
+        <div className="pt-10 sm:pt-14 flex flex-col items-center justify-center border-t border-[#E7E7E5]">
           <Link
             to="/fleet"
-            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#FFFFFF] hover:bg-[#F7F7F5] border border-[#E7E7E5] rounded-[4px] text-xs font-medium text-[#111318] uppercase tracking-wider transition-colors"
+            className="group relative inline-flex items-center gap-3 sm:gap-4 pl-5 sm:pl-7 pr-2 sm:pr-2.5 py-2 sm:py-2.5 rounded-full bg-[#111318] hover:bg-[#1a1d24] text-white transition-all duration-300 ease-out shadow-[0_12px_32px_-6px_rgba(17,19,24,0.32)] hover:shadow-[0_20px_44px_-6px_rgba(17,19,24,0.48)] hover:-translate-y-0.5 active:translate-y-0 border border-white/10"
           >
-            <span>Explore Complete Fleet (25 Models)</span>
-            <ArrowRight className="w-4 h-4 text-[#111318]" />
+            {/* Pill Badge Counter */}
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/15 text-[10px] sm:text-[11px] font-mono font-medium tracking-wide text-white/90">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#286BFF] animate-pulse" />
+              25 Models
+            </span>
+
+            {/* Main CTA Label */}
+            <span className="text-xs sm:text-sm font-display font-bold uppercase tracking-wider text-white">
+              Explore Complete Fleet
+            </span>
+
+            {/* Action Arrow Icon Circle */}
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white text-[#111318] group-hover:bg-[#286BFF] group-hover:text-white flex items-center justify-center transition-all duration-300 ease-out shadow-sm flex-shrink-0">
+              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+            </div>
           </Link>
+          <p className="mt-3 text-[11px] font-mono text-[#777777] tracking-tight">
+            Hatchbacks • Compact SUVs • Executive SUVs • Sedans
+          </p>
         </div>
 
         {/* Vehicle Detail Modal */}
