@@ -1,0 +1,280 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import { CHAUFFEUR_PACKAGES } from '../data/policies';
+import { INDORE_LOCATIONS } from '../data/locations';
+import { updateMetaTags } from '../lib/seo';
+
+export const ChauffeurPage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const [tripType, setTripType] = useState<'Local City' | 'Airport Transfer' | 'Outstation (Ujjain/Omkareshwar)'>('Local City');
+  const [pickupLoc, setPickupLoc] = useState('vijay-nagar');
+  const [destination, setDestination] = useState('Indore Municipal Limits / Brilliant Convention Centre');
+  const [travelDate, setTravelDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split('T')[0];
+  });
+  const [travelTime, setTravelTime] = useState('09:00');
+  const [selectedCategory, setSelectedCategory] = useState<'Hatchback' | 'Compact SUV' | 'Sedan' | 'SUV'>('Sedan');
+  const [selectedPackage, setSelectedPackage] = useState<'24h' | '12h'>('24h');
+
+  useEffect(() => {
+    updateMetaTags({
+      title: 'Chauffeur-Driven Car Rental Indore | AIRGOCABS',
+      description: 'Travel without the drive. Executive chauffeur services in Indore for corporate travel, airport meet & greet, weddings, and Ujjain temple darshans.',
+    });
+  }, []);
+
+  const handleChauffeurSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams({
+      type: 'Chauffeur',
+      pkg: selectedPackage,
+      pickup: pickupLoc,
+      dropoff: tripType === 'Airport Transfer' ? 'airport-idr' : pickupLoc,
+      pDate: travelDate,
+      pTime: travelTime,
+      category: selectedCategory,
+    });
+    navigate(`/book?${params.toString()}`);
+  };
+
+  return (
+    <div className="pt-32 sm:pt-40 pb-24 bg-[#F7F7F5] min-h-screen">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-20">
+        
+        {/* Editorial Hero Header */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
+          <div className="lg:col-span-8 space-y-4">
+            <span className="text-[11px] font-display uppercase tracking-widest text-[#777777] font-semibold block">
+              Executive Service • Indore
+            </span>
+            <h1 className="text-4xl sm:text-6xl font-display font-extrabold tracking-[-0.035em] text-[#111318] leading-[1.08]">
+              Travel Without the Drive.
+            </h1>
+            <p className="text-sm sm:text-base text-[#666666] max-w-xl leading-relaxed">
+              Comfortable, convenient transportation with a professional driver. For corporate delegates, airport arrivals, family celebrations, and spiritual day trips to Ujjain and Omkareshwar.
+            </p>
+            <div className="pt-2">
+              <a
+                href="#chauffeur-form"
+                className="btn-primary"
+              >
+                <span>Book Chauffeur Service</span>
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+              </a>
+            </div>
+          </div>
+
+          <div className="lg:col-span-4 hidden lg:block text-right text-xs text-[#777777]">
+            <div className="font-semibold text-[#111318]">+₹1,499 (24H) • +₹899 (12H)</div>
+            <div>250 KM / 150 KM • Extra ₹8/km</div>
+            <div>Zero Security Deposit</div>
+          </div>
+        </div>
+
+        {/* Feature Photography */}
+        <div className="relative h-[360px] sm:h-[480px] rounded-[6px] overflow-hidden border border-[#E7E7E5] bg-[#EFEFEA]">
+          <img
+            src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1600&q=80"
+            alt="Chauffeur Travel in Indore"
+            className="w-full h-full object-cover object-center"
+            loading="eager"
+          />
+        </div>
+
+        {/* 4 Pillars Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="p-6 bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] space-y-2">
+            <span className="text-[10px] uppercase font-mono text-[#777777] block">Airport</span>
+            <h3 className="text-base font-display font-bold text-[#111318]">Airport Meet & Greet</h3>
+            <p className="text-xs text-[#666666] leading-relaxed">
+              Chauffeur stationed at Terminal 1 Arrival Gate with a personalized name card. Real-time flight tracking included.
+            </p>
+          </div>
+
+          <div className="p-6 bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] space-y-2">
+            <span className="text-[10px] uppercase font-mono text-[#777777] block">Corporate</span>
+            <h3 className="text-base font-display font-bold text-[#111318]">Corporate & City Travel</h3>
+            <p className="text-xs text-[#666666] leading-relaxed">
+              12H (150 KM, +₹899) and 24H (250 KM, +₹1,499) chauffeur packages for meetings across Vijay Nagar, Palasia, and SEZ zones.
+            </p>
+          </div>
+
+          <div className="p-6 bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] space-y-2">
+            <span className="text-[10px] uppercase font-mono text-[#777777] block">Pilgrimage</span>
+            <h3 className="text-base font-display font-bold text-[#111318]">Ujjain & Omkareshwar</h3>
+            <p className="text-xs text-[#666666] leading-relaxed">
+              Experienced highway drivers for Mahakaleshwar Jyotirlinga VIP darshans, Omkareshwar, and Maheshwar ghats.
+            </p>
+          </div>
+
+          <div className="p-6 bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] space-y-2">
+            <span className="text-[10px] uppercase font-mono text-[#777777] block">Events</span>
+            <h3 className="text-base font-display font-bold text-[#111318]">Weddings & Delegations</h3>
+            <p className="text-xs text-[#666666] leading-relaxed">
+              Innova Crysta captain seats, BMW sedans, and luxury MPVs for distinguished family and corporate guests.
+            </p>
+          </div>
+        </div>
+
+        {/* Chauffeur Packages List */}
+        <div className="space-y-8">
+          <div className="space-y-2">
+            <span className="text-[11px] font-display uppercase tracking-widest text-[#777777] font-semibold block">
+              Curated Packages
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-[#111318]">
+              Standard Chauffeur Packages
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {CHAUFFEUR_PACKAGES.map((pkg) => (
+              <div
+                key={pkg.id}
+                className="p-6 bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] space-y-4 flex flex-col justify-between"
+              >
+                <div className="space-y-2">
+                  <span className="text-[10px] font-mono text-[#777777] uppercase block">{pkg.duration}</span>
+                  <h3 className="text-base font-display font-bold text-[#111318]">{pkg.name}</h3>
+                  <p className="text-xs text-[#666666] leading-relaxed">{pkg.description}</p>
+                </div>
+
+                <div className="pt-3 border-t border-[#E7E7E5] text-[11px] text-[#555555] space-y-1">
+                  <div>Extra hours: <span className="font-medium text-[#111318]">{pkg.extraHourRate}</span></div>
+                  <div>Extra km: <span className="font-medium text-[#111318]">{pkg.extraKmRate}</span></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Chauffeur Booking Form */}
+        <div id="chauffeur-form" className="max-w-3xl mx-auto scroll-mt-36">
+          <div className="bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-8 sm:p-10 space-y-6 shadow-subtle">
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono uppercase text-[#777777] font-semibold">
+                Direct Booking Form
+              </span>
+              <h3 className="text-2xl font-display font-bold text-[#111318]">
+                Reserve a Chauffeur-Driven Car
+              </h3>
+              <p className="text-xs text-[#666666]">
+                Provide your travel itinerary to receive instantaneous vehicle allocation.
+              </p>
+            </div>
+
+            <form onSubmit={handleChauffeurSearch} className="space-y-5 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {[
+                  'Local City',
+                  'Airport Transfer',
+                  'Outstation (Ujjain/Omkareshwar)',
+                ].map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setTripType(t as any)}
+                    className={`py-2.5 px-3 rounded-[4px] text-xs font-medium transition-all ${
+                      tripType === t
+                        ? 'bg-[#111318] text-[#FFFFFF]'
+                        : 'bg-[#F7F7F5] text-[#555555] border border-[#E7E7E5]'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold uppercase text-[#777777]">Pickup Location</label>
+                  <select
+                    value={pickupLoc}
+                    onChange={(e) => setPickupLoc(e.target.value)}
+                    className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
+                  >
+                    {INDORE_LOCATIONS.map((loc) => (
+                      <option key={loc.id} value={loc.id}>{loc.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold uppercase text-[#777777]">Destination / Area</label>
+                  <input
+                    type="text"
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
+                    placeholder="e.g. Ujjain, Indore Airport, or Hotel"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold uppercase text-[#777777]">Date</label>
+                  <input
+                    type="date"
+                    value={travelDate}
+                    onChange={(e) => setTravelDate(e.target.value)}
+                    className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold uppercase text-[#777777]">Reporting Time</label>
+                  <input
+                    type="time"
+                    value={travelTime}
+                    onChange={(e) => setTravelTime(e.target.value)}
+                    className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold uppercase text-[#777777]">Package Duration</label>
+                  <select
+                    value={selectedPackage}
+                    onChange={(e) => setSelectedPackage(e.target.value as '24h' | '12h')}
+                    className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
+                  >
+                    <option value="24h">24 Hours • 250 KM (+₹1,499 Driver)</option>
+                    <option value="12h">12 Hours • 150 KM (+₹899 Driver)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold uppercase text-[#777777]">Vehicle Segment</label>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value as any)}
+                    className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
+                  >
+                    <option value="Hatchback">Hatchback (Swift / Baleno / Glanza / Dzire)</option>
+                    <option value="Compact SUV">Compact SUV (Creta / Sonet / Brezza)</option>
+                    <option value="Sedan">Executive Sedan (Verna / Slavia)</option>
+                    <option value="SUV">SUV / 7-Seater (Innova / XUV 7OO / Scorpio-N / Fortuner)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full btn-primary"
+                >
+                  <span>Proceed to Check Rates & Confirm</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-white" />
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};

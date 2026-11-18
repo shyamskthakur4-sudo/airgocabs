@@ -1,0 +1,7 @@
+# robots.txt for AIRGOCABS Indore
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://airgocabs.com/sitemap.xml
