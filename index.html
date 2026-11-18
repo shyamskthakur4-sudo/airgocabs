@@ -155,11 +155,13 @@
           if (preloader) {
             preloader.classList.add('is-hidden');
             document.body.classList.remove('no-scroll');
+            window.dispatchEvent(new Event('airgo:preloader-exit'));
             setTimeout(function () {
               preloader.remove();
             }, 600);
           } else {
             document.body.classList.remove('no-scroll');
+            window.dispatchEvent(new Event('airgo:preloader-exit'));
           }
         }
 

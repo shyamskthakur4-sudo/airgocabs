@@ -10,9 +10,10 @@ export const Navbar: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 12);
     };
-    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -37,14 +38,18 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-[#FFFFFF]/95 backdrop-blur-md border-b border-[#E7E7E5] py-3 shadow-subtle'
-            : 'bg-[#F7F7F5]/90 backdrop-blur-sm border-b border-[#E7E7E5] py-3.5'
+        className={`fixed top-0 left-0 right-0 z-50 pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isScrolled && !isMobileMenuOpen ? 'pt-2.5 sm:pt-3.5 px-3 sm:px-6' : 'pt-0 px-0'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
-          <div className="flex items-center justify-between">
+        <div
+          className={`pointer-events-auto mx-auto transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isScrolled && !isMobileMenuOpen
+              ? 'max-w-6xl rounded-2xl bg-[#FFFFFF]/70 backdrop-blur-xl backdrop-saturate-150 border border-white/70 ring-1 ring-[#111318]/[0.07] shadow-[0_12px_36px_-12px_rgba(17,19,24,0.18)] py-2.5 sm:py-3 px-4 sm:px-7'
+              : 'max-w-full rounded-none bg-[#F7F7F5]/90 backdrop-blur-sm border-b border-[#E7E7E5] py-3.5 px-4 sm:px-8 lg:px-12'
+          }`}
+        >
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
             {/* Left: Original AIRGOCABS logo */}
             <div className="flex-shrink-0">
               <BrandLogo imgClassName="h-6 sm:h-7 w-auto" />
@@ -78,7 +83,9 @@ export const Navbar: React.FC = () => {
 
               <Link
                 to="/book"
-                className="inline-flex items-center justify-center bg-[#111318] text-[#FFFFFF] hover:bg-[#262626] text-xs font-medium px-4 py-2.5 rounded-[4px] transition-all tracking-wide"
+                className={`inline-flex items-center justify-center bg-[#111318] text-[#FFFFFF] hover:bg-[#262626] text-xs font-medium px-4 py-2.5 transition-all tracking-wide ${
+                  isScrolled ? 'rounded-xl' : 'rounded-[4px]'
+                }`}
               >
                 <span>Book a Car</span>
               </Link>
@@ -88,7 +95,9 @@ export const Navbar: React.FC = () => {
             <div className="flex items-center space-x-2 lg:hidden">
               <Link
                 to="/book"
-                className="inline-flex items-center justify-center bg-[#111318] text-[#FFFFFF] text-xs font-medium px-3 py-1.5 rounded-[4px]"
+                className={`inline-flex items-center justify-center bg-[#111318] text-[#FFFFFF] text-xs font-medium px-3.5 py-1.5 transition-all ${
+                  isScrolled && !isMobileMenuOpen ? 'rounded-lg' : 'rounded-[4px]'
+                }`}
               >
                 Book
               </Link>
