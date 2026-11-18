@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
+import { PreFooterLinks } from './components/layout/PreFooterLinks';
 import { FloatingWhatsApp } from './components/layout/FloatingWhatsApp';
 import { ScrollToTop } from './components/common/ScrollToTop';
 
@@ -11,6 +12,7 @@ const FleetPage = lazy(() => import('./pages/FleetPage').then(m => ({ default: m
 const SelfDrivePage = lazy(() => import('./pages/SelfDrivePage').then(m => ({ default: m.SelfDrivePage })));
 const ChauffeurPage = lazy(() => import('./pages/ChauffeurPage').then(m => ({ default: m.ChauffeurPage })));
 const AirportTransferPage = lazy(() => import('./pages/AirportTransferPage').then(m => ({ default: m.AirportTransferPage })));
+const RoutePage = lazy(() => import('./pages/RoutePage').then(m => ({ default: m.RoutePage })));
 const BookingPage = lazy(() => import('./pages/BookingPage').then(m => ({ default: m.BookingPage })));
 const BookingConfirmationPage = lazy(() => import('./pages/BookingConfirmationPage').then(m => ({ default: m.BookingConfirmationPage })));
 const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
@@ -47,6 +49,7 @@ export const App: React.FC = () => {
               <Route path="/self-drive" element={<SelfDrivePage />} />
               <Route path="/with-driver" element={<ChauffeurPage />} />
               <Route path="/airport-transfer" element={<AirportTransferPage />} />
+              <Route path="/cabs/:routeSlug" element={<RoutePage />} />
               <Route path="/book" element={<BookingPage />} />
               <Route path="/booking-confirmation" element={<BookingConfirmationPage />} />
               <Route path="/about" element={<AboutPage />} />
@@ -61,6 +64,7 @@ export const App: React.FC = () => {
           </Suspense>
         </main>
 
+        <PreFooterLinks />
         <Footer />
         <FloatingWhatsApp />
       </div>

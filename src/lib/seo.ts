@@ -9,21 +9,45 @@ export interface SEOProps {
 export function updateMetaTags({
   title,
   description,
-  canonical = window.location.href,
+  canonical,
   ogType = 'website',
   schema,
 }: SEOProps) {
   // Update document title
   document.title = title;
 
-  // Update meta description
-  let metaDesc = document.querySelector('meta[name="description"]');
-  if (!metaDesc) {
-    metaDesc = document.createElement('meta');
-    metaDesc.setAttribute('name', 'description');
-    document.head.appendChild(metaDesc);
+  // Helper for meta tags
+  const setMeta = (attrName: 'name' | 'property', attrVal: string, content: string) => {
+    let el = document.querySelector(`meta[${attrName}="${attrVal}"]`);
+    if (!el) {
+      el = document.createElement('meta');
+      el.setAttribute(attrName, attrVal);
+      document.head.appendChild(el);
+    }
+    el.setAttribute('content', content);
+  };
+
+  setMeta('name', 'title', title);
+  setMeta('name', 'description', description);
+
+  // Construct clean self-referencing canonical URL without query parameters
+  const BASE_URL = 'https://www.airgocabs.com';
+  let cleanCanonical = canonical;
+  if (!cleanCanonical) {
+    const pathname = window.location.pathname === '/' ? '/' : window.location.pathname.replace(/\/+$/, '');
+    cleanCanonical = `${BASE_URL}${pathname === '/' ? '/' : pathname}`;
+  } else if (!cleanCanonical.startsWith('http')) {
+    const pathname = cleanCanonical === '/' ? '/' : cleanCanonical.replace(/\/+$/, '');
+    cleanCanonical = `${BASE_URL}${pathname.startsWith('/') ? pathname : `/${pathname}`}`;
+  } else {
+    // If a full URL was passed, strip its query params
+    try {
+      const urlObj = new URL(cleanCanonical);
+      cleanCanonical = `${BASE_URL}${urlObj.pathname === '/' ? '/' : urlObj.pathname.replace(/\/+$/, '')}`;
+    } catch {
+      cleanCanonical = BASE_URL;
+    }
   }
-  metaDesc.setAttribute('content', description);
 
   // Update canonical link
   let linkCanonical = document.querySelector('link[rel="canonical"]');
@@ -32,20 +56,20 @@ export function updateMetaTags({
     linkCanonical.setAttribute('rel', 'canonical');
     document.head.appendChild(linkCanonical);
   }
-  linkCanonical.setAttribute('href', canonical);
+  linkCanonical.setAttribute('href', cleanCanonical);
 
   // Update Open Graph
-  const ogTitle = document.querySelector('meta[property="og:title"]');
-  if (ogTitle) ogTitle.setAttribute('content', title);
+  setMeta('property', 'og:site_name', 'AirGo Cabs');
+  setMeta('property', 'og:title', title);
+  setMeta('property', 'og:description', description);
+  setMeta('property', 'og:url', cleanCanonical);
+  setMeta('property', 'og:type', ogType);
 
-  const ogDesc = document.querySelector('meta[property="og:description"]');
-  if (ogDesc) ogDesc.setAttribute('content', description);
-
-  const ogUrl = document.querySelector('meta[property="og:url"]');
-  if (ogUrl) ogUrl.setAttribute('content', canonical);
-
-  const ogTypeMeta = document.querySelector('meta[property="og:type"]');
-  if (ogTypeMeta) ogTypeMeta.setAttribute('content', ogType);
+  // Update Twitter Cards
+  setMeta('property', 'twitter:card', 'summary_large_image');
+  setMeta('property', 'twitter:title', title);
+  setMeta('property', 'twitter:description', description);
+  setMeta('property', 'twitter:url', cleanCanonical);
 
   // Inject or update JSON-LD Schema
   const existingScript = document.getElementById('json-ld-schema');

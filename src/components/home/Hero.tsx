@@ -44,6 +44,8 @@ export const Hero: React.FC = () => {
             alt="AIRGOCABS Indore Airport Tarmac Car Handover"
             fetchPriority="high"
             loading="eager"
+            width={1920}
+            height={1080}
             className="hero-photo-reveal w-full h-full object-cover object-[76%_62%] sm:object-[68%_56%] lg:object-[72%_56%]"
           />
 

@@ -1,91 +1,156 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- 1. Primary Landing & Service Pages -->
   <url>
-    <loc>https://airgocabs.com/</loc>
-    <lastmod>2026-11-18</lastmod>
+    <loc>https://www.airgocabs.com/</loc>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://airgocabs.com/images/hero-airport-car.jpg</image:loc>
-      <image:title>AIRGOCABS Indore Airport Tarmac Car Rental Handover</image:title>
+      <image:loc>https://www.airgocabs.com/images/hero-airport-car.jpg</image:loc>
+      <image:title>AirGo Cabs Indore Airport Tarmac Car Rental Handover</image:title>
     </image:image>
   </url>
   <url>
-    <loc>https://airgocabs.com/fleet</loc>
-    <lastmod>2026-11-18</lastmod>
+    <loc>https://www.airgocabs.com/fleet</loc>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://airgocabs.com/images/cars/fortuner.jpg</image:loc>
-      <image:title>Toyota Fortuner Rental in Indore — AIRGOCABS</image:title>
+      <image:loc>https://www.airgocabs.com/images/cars/fortuner.jpg</image:loc>
+      <image:title>Toyota Fortuner Rental in Indore — AirGo Cabs</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://airgocabs.com/images/cars/creta.jpg</image:loc>
-      <image:title>Hyundai Creta Rental in Indore — AIRGOCABS</image:title>
+      <image:loc>https://www.airgocabs.com/images/cars/creta.jpg</image:loc>
+      <image:title>Hyundai Creta Rental in Indore — AirGo Cabs</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://airgocabs.com/images/cars/swift.jpg</image:loc>
-      <image:title>Maruti Suzuki Swift Rental in Indore — AIRGOCABS</image:title>
+      <image:loc>https://www.airgocabs.com/images/cars/swift.jpg</image:loc>
+      <image:title>Maruti Suzuki Swift Rental in Indore — AirGo Cabs</image:title>
     </image:image>
   </url>
   <url>
-    <loc>https://airgocabs.com/self-drive</loc>
-    <lastmod>2026-11-18</lastmod>
+    <loc>https://www.airgocabs.com/self-drive</loc>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://airgocabs.com/with-driver</loc>
-    <lastmod>2026-11-18</lastmod>
+    <loc>https://www.airgocabs.com/with-driver</loc>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://airgocabs.com/airport-transfer</loc>
-    <lastmod>2026-11-18</lastmod>
+    <loc>https://www.airgocabs.com/airport-transfer</loc>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://airgocabs.com/book</loc>
-    <lastmod>2026-11-18</lastmod>
+    <loc>https://www.airgocabs.com/book</loc>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- 2. Programmatic High-Intent Outstation Routes -->
   <url>
-    <loc>https://airgocabs.com/about</loc>
-    <lastmod>2026-11-18</lastmod>
+    <loc>https://www.airgocabs.com/cabs/indore-to-ujjain</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.airgocabs.com/cabs/ujjain-to-indore</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.airgocabs.com/cabs/indore-to-bhopal</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.airgocabs.com/cabs/bhopal-to-indore</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.airgocabs.com/cabs/indore-to-omkareshwar</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.airgocabs.com/cabs/omkareshwar-to-indore</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.airgocabs.com/cabs/indore-to-mandav</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.airgocabs.com/cabs/mandav-to-indore</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.airgocabs.com/cabs/indore-to-maheshwar</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.airgocabs.com/cabs/maheshwar-to-indore</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- 3. Company & Policy Pages -->
+  <url>
+    <loc>https://www.airgocabs.com/about</loc>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://airgocabs.com/contact</loc>
-    <lastmod>2026-11-18</lastmod>
+    <loc>https://www.airgocabs.com/contact</loc>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://airgocabs.com/faq</loc>
-    <lastmod>2026-11-18</lastmod>
+    <loc>https://www.airgocabs.com/faq</loc>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://airgocabs.com/terms</loc>
-    <lastmod>2026-11-18</lastmod>
+    <loc>https://www.airgocabs.com/terms</loc>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://airgocabs.com/privacy</loc>
-    <lastmod>2026-11-18</lastmod>
+    <loc>https://www.airgocabs.com/privacy</loc>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://airgocabs.com/cancellation</loc>
-    <lastmod>2026-11-18</lastmod>
+    <loc>https://www.airgocabs.com/cancellation</loc>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
