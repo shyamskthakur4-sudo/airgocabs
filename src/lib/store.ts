@@ -3,7 +3,7 @@ import { INITIAL_VEHICLES } from '../data/vehicles';
 import { BUSINESS_SETTINGS } from '../data/settings';
 import { supabase, isSupabaseConfigured } from './supabase';
 
-const VEHICLES_STORAGE_KEY = 'airgocabs_vehicles_v7';
+const VEHICLES_STORAGE_KEY = 'airgocabs_vehicles_v8';
 const BOOKINGS_STORAGE_KEY = 'airgocabs_bookings_v4';
 const SETTINGS_STORAGE_KEY = 'airgocabs_settings_v4';
 

@@ -843,6 +843,7 @@ export const AdminPage: React.FC = () => {
                         >
                           <option value="Petrol">Petrol</option>
                           <option value="Diesel">Diesel</option>
+                          <option value="CNG + Petrol">CNG + Petrol</option>
                           <option value="Hybrid">Hybrid</option>
                           <option value="Electric">Electric</option>
                         </select>

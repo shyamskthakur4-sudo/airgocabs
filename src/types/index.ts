@@ -6,7 +6,7 @@ export type PackageDuration = '24h' | '12h';
 
 export type TransmissionType = 'Manual' | 'Automatic';
 
-export type FuelType = 'Petrol' | 'Diesel' | 'Hybrid' | 'Electric';
+export type FuelType = 'Petrol' | 'Diesel' | 'CNG + Petrol' | 'Hybrid' | 'Electric';
 
 export interface Vehicle {
   id: string;
