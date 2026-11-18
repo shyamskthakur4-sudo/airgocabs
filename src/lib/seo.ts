@@ -71,7 +71,7 @@ export const AIRGOCABS_LOCAL_BUSINESS_SCHEMA = {
   'url': 'https://airgocabs.com',
   'logo': 'https://airgocabs.com/images/logo.png',
   'image': 'https://airgocabs.com/images/og-cover.jpg',
-  'telephone': '+91-98930-18888',
+  'telephone': '+91-83492-50049',
   'email': 'reservations@airgocabs.com',
   'priceRange': '₹₹',
   'currenciesAccepted': 'INR',

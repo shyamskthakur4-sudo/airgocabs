@@ -178,7 +178,7 @@ export const ChauffeurPage: React.FC = () => {
                     key={t}
                     type="button"
                     onClick={() => setTripType(t as any)}
-                    className={`py-2.5 px-3 rounded-[4px] text-xs font-medium transition-all ${
+                    className={`min-h-[44px] py-2.5 px-3 rounded-[4px] text-xs font-semibold transition-all ${
                       tripType === t
                         ? 'bg-[#111318] text-[#FFFFFF]'
                         : 'bg-[#F7F7F5] text-[#555555] border border-[#E7E7E5]'
@@ -191,11 +191,11 @@ export const ChauffeurPage: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-semibold uppercase text-[#777777]">Pickup Location</label>
+                  <label className="text-[11px] font-semibold uppercase text-[#666666]">Pickup Location</label>
                   <select
                     value={pickupLoc}
                     onChange={(e) => setPickupLoc(e.target.value)}
-                    className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
+                    className="w-full min-h-[48px] sm:min-h-[44px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-3 py-2.5 text-base sm:text-xs text-[#171717] focus:outline-none"
                   >
                     {INDORE_LOCATIONS.map((loc) => (
                       <option key={loc.id} value={loc.id}>{loc.name}</option>
@@ -204,42 +204,44 @@ export const ChauffeurPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-semibold uppercase text-[#777777]">Destination / Area</label>
+                  <label className="text-[11px] font-semibold uppercase text-[#666666]">Destination / Area</label>
                   <input
                     type="text"
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
-                    className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
+                    className="w-full min-h-[48px] sm:min-h-[44px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-3 py-2.5 text-base sm:text-xs text-[#171717] focus:outline-none"
                     placeholder="e.g. Ujjain, Indore Airport, or Hotel"
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-semibold uppercase text-[#777777]">Date</label>
-                  <input
-                    type="date"
-                    value={travelDate}
-                    onChange={(e) => setTravelDate(e.target.value)}
-                    className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
-                  />
+                <div className="grid grid-cols-[1.35fr_1fr] gap-2 sm:col-span-2">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-semibold uppercase text-[#666666]">Date</label>
+                    <input
+                      type="date"
+                      value={travelDate}
+                      onChange={(e) => setTravelDate(e.target.value)}
+                      className="w-full min-w-0 min-h-[48px] sm:min-h-[44px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-3 py-2.5 text-base sm:text-xs text-[#171717] focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-semibold uppercase text-[#666666]">Time</label>
+                    <input
+                      type="time"
+                      value={travelTime}
+                      onChange={(e) => setTravelTime(e.target.value)}
+                      className="w-full min-w-0 min-h-[48px] sm:min-h-[44px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-3 py-2.5 text-base sm:text-xs text-[#171717] font-mono focus:outline-none"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-semibold uppercase text-[#777777]">Reporting Time</label>
-                  <input
-                    type="time"
-                    value={travelTime}
-                    onChange={(e) => setTravelTime(e.target.value)}
-                    className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-semibold uppercase text-[#777777]">Package Duration</label>
+                  <label className="text-[11px] font-semibold uppercase text-[#666666]">Package Duration</label>
                   <select
                     value={selectedPackage}
                     onChange={(e) => setSelectedPackage(e.target.value as '24h' | '12h')}
-                    className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
+                    className="w-full min-h-[48px] sm:min-h-[44px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-3 py-2.5 text-base sm:text-xs text-[#171717] focus:outline-none"
                   >
                     <option value="24h">24 Hours • 250 KM (+₹1,499 Driver)</option>
                     <option value="12h">12 Hours • 150 KM (+₹899 Driver)</option>
@@ -247,11 +249,11 @@ export const ChauffeurPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-semibold uppercase text-[#777777]">Vehicle Segment</label>
+                  <label className="text-[11px] font-semibold uppercase text-[#666666]">Vehicle Segment</label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value as any)}
-                    className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
+                    className="w-full min-h-[48px] sm:min-h-[44px] bg-[#FFFFFF] border border-[#E7E7E5] focus:border-[#111318] rounded-[4px] px-3 py-2.5 text-base sm:text-xs text-[#171717] focus:outline-none"
                   >
                     <option value="Hatchback">Hatchback (Swift / Baleno / Glanza / Dzire)</option>
                     <option value="Compact SUV">Compact SUV (Creta / Sonet / Brezza)</option>
@@ -264,7 +266,7 @@ export const ChauffeurPage: React.FC = () => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full btn-primary"
+                  className="w-full min-h-[50px] btn-primary"
                 >
                   <span>Proceed to Check Rates & Confirm</span>
                   <ArrowRight className="w-3.5 h-3.5 text-white" />

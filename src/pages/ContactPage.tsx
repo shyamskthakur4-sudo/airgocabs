@@ -60,7 +60,7 @@ export const ContactPage: React.FC = () => {
                 <div>
                   <span className="text-[10px] uppercase font-mono text-[#777777] block font-semibold">WhatsApp Concierge</span>
                   <a href={buildGeneralWhatsAppUrl()} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-[#111318] hover:text-[#286BFF]">
-                    +91 {BUSINESS_SETTINGS.whatsappNumber.slice(2)}
+                    {BUSINESS_SETTINGS.primaryPhone}
                   </a>
                 </div>
 
@@ -140,7 +140,7 @@ export const ContactPage: React.FC = () => {
                         required
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        placeholder="e.g. 98930 12345"
+                        placeholder="e.g. 83492 50049"
                         className="w-full bg-[#FFFFFF] border border-[#E7E7E5] rounded-[4px] p-2.5 text-[#171717] focus:outline-none"
                       />
                     </div>

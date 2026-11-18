@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { MessageSquare, X, ArrowUpRight } from 'lucide-react';
 import { BUSINESS_SETTINGS } from '../../data/settings';
 import { buildGeneralWhatsAppUrl } from '../../lib/whatsapp';
 
 export const FloatingWhatsApp: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  const isBookingPage = location.pathname === '/book';
 
   const prompts = [
     'Car availability at Indore Airport today',
@@ -13,7 +16,7 @@ export const FloatingWhatsApp: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 select-none">
+    <div className={`fixed right-4 sm:bottom-6 sm:right-6 z-40 select-none ${isBookingPage ? 'bottom-24' : 'bottom-4'}`}>
       {isOpen && (
         <div className="mb-3 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-[#FFFFFF] border border-[#E7E7E5] shadow-lift rounded-[6px] overflow-hidden animate-slide-up text-left">
           <div className="bg-[#111318] text-[#FFFFFF] p-4 flex items-center justify-between">
@@ -22,7 +25,7 @@ export const FloatingWhatsApp: React.FC = () => {
                 AIRGOCABS Concierge
               </div>
               <div className="text-[10px] text-[#A3A3A3]">
-                Indore Operations Desk • Replies in ~2 mins
+                {BUSINESS_SETTINGS.primaryPhone} • Replies in ~2 mins
               </div>
             </div>
             <button

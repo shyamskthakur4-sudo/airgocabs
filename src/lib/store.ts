@@ -5,7 +5,7 @@ import { supabase, isSupabaseConfigured } from './supabase';
 
 const VEHICLES_STORAGE_KEY = 'airgocabs_vehicles_v7';
 const BOOKINGS_STORAGE_KEY = 'airgocabs_bookings_v4';
-const SETTINGS_STORAGE_KEY = 'airgocabs_settings_v3';
+const SETTINGS_STORAGE_KEY = 'airgocabs_settings_v4';
 
 // Seed demo bookings so admin dashboard looks complete and informative immediately
 const DEMO_BOOKINGS: Booking[] = [
