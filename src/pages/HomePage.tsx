@@ -11,8 +11,8 @@ import { updateMetaTags, AIRGOCABS_LOCAL_BUSINESS_SCHEMA } from '../lib/seo';
 export const HomePage: React.FC = () => {
   useEffect(() => {
     updateMetaTags({
-      title: 'AIRGOCABS — Premium Automotive Mobility & Car Rental | Indore',
-      description: 'Move freely. Arrive better. Premium self-drive and chauffeur-driven car rentals in Indore. Punctual airport handover at Devi Ahilya Bai Holkar Airport.',
+      title: 'Car Rental in Indore — Self-Drive & Chauffeur Services | AIRGOCABS',
+      description: 'Book premium self-drive and chauffeur-driven car rentals in Indore with direct handover at Devi Ahilya Bai Holkar Airport (IDR Terminal 1 Bay 4). 25+ verified cars, 12H & 24H packages, and flat transparent rates.',
       schema: AIRGOCABS_LOCAL_BUSINESS_SCHEMA,
     });
   }, []);

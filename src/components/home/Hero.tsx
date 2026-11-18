@@ -64,42 +64,42 @@ export const Hero: React.FC = () => {
         <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-8 lg:px-12 flex-1 flex flex-col justify-between">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start lg:items-center my-auto py-4 sm:py-6">
             {/* Left Editorial Column */}
-            <div className="lg:col-span-6 space-y-5 sm:space-y-6 max-w-xl">
-              {/* Eyebrow Tag */}
+            <div className="lg:col-span-7 xl:col-span-6 space-y-5 sm:space-y-6 max-w-xl">
+              {/* Clean Editorial Eyebrow — Architectural line & mono typography (No AI capsule pill) */}
               <div
-                className="hero-reveal-fade inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FFFFFF]/80 backdrop-blur-md border border-[#111318]/10 text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-[#111318] font-medium shadow-sm"
+                className="hero-reveal-fade flex items-center gap-2.5 text-[11px] sm:text-xs font-mono uppercase tracking-[0.16em] text-[#525760] font-semibold"
                 style={{ transitionDelay: '0ms' }}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#286BFF]" />
-                <span>Indore Airport (IDR) • Citywide Fleet</span>
+                <span className="w-5 h-[2px] bg-[#286BFF] inline-block shrink-0" />
+                <span>Premier Car Rental in Indore • Airport & City Fleet</span>
               </div>
 
-              {/* Masked Kinetic Display Headline */}
-              <h1 className="text-4xl sm:text-6xl lg:text-[68px] font-display font-extrabold tracking-[-0.038em] text-[#111318] leading-[1.03]">
-                <span className="hero-mask">
+              {/* SEO-Engineered Kinetic Display Headline */}
+              <h1 className="text-3xl sm:text-5xl lg:text-[54px] xl:text-[60px] font-display font-extrabold tracking-[-0.035em] text-[#111318] leading-[1.08]">
+                <span className="hero-mask block">
                   <span
-                    className="hero-reveal-line"
+                    className="hero-reveal-line block"
                     style={{ transitionDelay: '90ms' }}
                   >
-                    Move Freely.
+                    Car Rental in Indore.
                   </span>
                 </span>
-                <span className="hero-mask">
+                <span className="hero-mask block">
                   <span
-                    className="hero-reveal-line text-[#111318]"
+                    className="hero-reveal-line block text-[#111318]"
                     style={{ transitionDelay: '210ms' }}
                   >
-                    Arrive Better<span className="text-[#286BFF]">.</span>
+                    Self-Drive & Chauffeur<span className="text-[#286BFF]">.</span>
                   </span>
                 </span>
               </h1>
 
-              {/* Editorial Subheadline */}
+              {/* SEO & Customer-Focused Subheadline */}
               <p
-                className="hero-reveal-fade text-sm sm:text-base text-[#3A3D45] font-normal max-w-md leading-relaxed"
+                className="hero-reveal-fade text-sm sm:text-base text-[#3A3D45] font-normal max-w-lg leading-relaxed"
                 style={{ transitionDelay: '330ms' }}
               >
-                From runway to highway in minutes. Sanitized self-drive and chauffeur-driven cars in Indore with direct Terminal 1 handover.
+                Rent self-drive and chauffeur-driven cars in Indore with guaranteed handover at Devi Ahilya Bai Holkar Airport (Terminal 1 Bay 4). Choose from 25+ verified hatchbacks, sedans, and SUVs with transparent 12H and 24H packages, flat rates, and doorstep delivery.
               </p>
 
               {/* Primary & Secondary CTAs */}
@@ -111,52 +111,60 @@ export const Hero: React.FC = () => {
                   to="/book"
                   className="btn-primary min-h-[46px] px-6 shadow-[0_8px_24px_-8px_rgba(17,19,24,0.35)]"
                 >
-                  <span>Book Your Ride</span>
+                  <span>Book a Car</span>
                   <ArrowRight className="w-3.5 h-3.5 text-white" />
                 </Link>
 
                 <Link
                   to="/fleet"
-                  className="btn-secondary min-h-[46px] px-6 bg-[#FFFFFF]/80 backdrop-blur-md border-[#111318]/15 hover:bg-[#FFFFFF]"
+                  className="btn-secondary min-h-[46px] px-6 bg-[#FFFFFF]/90 backdrop-blur-md border-[#111318]/15 hover:bg-[#FFFFFF]"
                 >
-                  <span>Explore 25-Car Fleet</span>
+                  <span>Explore 25 Models & Rates</span>
                 </Link>
               </div>
 
-              {/* Minimal Swiss Specification Bar */}
+              {/* Specification & Trust Highlights Bar */}
               <div
                 className="hero-reveal-fade pt-4 border-t border-[#111318]/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-mono text-[#444850]"
                 style={{ transitionDelay: '540ms' }}
               >
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-[#111318]">24H</span>
-                  <span>250 KM</span>
+                  <span>250 KM Included</span>
                 </div>
                 <span className="text-[#111318]/20">|</span>
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-[#111318]">12H</span>
-                  <span>150 KM</span>
+                  <span>150 KM Included</span>
                 </div>
                 <span className="text-[#111318]/20">|</span>
-                <div>Extra ₹6/km</div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-[#111318]">₹6/KM</span>
+                  <span>Self-Drive Extra</span>
+                </div>
+                <span className="text-[#111318]/20">|</span>
+                <div className="flex items-center gap-1.5 text-[#111318]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#286BFF]" />
+                  <span className="font-semibold">Terminal 1 Bay 4 Dispatch</span>
+                </div>
               </div>
             </div>
 
-            {/* Right Column — Open stage for the aircraft & silver coupe; minimal glass telemetry pill placed in upper-right sky so the car is 100% unobstructed */}
-            <div className="hidden lg:flex lg:col-span-6 flex-col items-end justify-start self-start pt-2">
+            {/* Right Column — Clean Swiss dispatch status badge (No bubbly AI pill) */}
+            <div className="hidden lg:flex lg:col-span-5 xl:col-span-6 flex-col items-end justify-start self-start pt-2">
               <div
-                className="hero-reveal-fade inline-flex items-center gap-3 px-4 py-2.5 rounded-xl bg-[#FFFFFF]/75 backdrop-blur-xl border border-white/80 ring-1 ring-[#111318]/[0.06] shadow-[0_12px_32px_-12px_rgba(17,19,24,0.18)] text-xs"
+                className="hero-reveal-fade inline-flex items-center gap-3.5 px-4 py-3 rounded-[4px] bg-[#FFFFFF]/90 backdrop-blur-md border border-[#111318]/10 shadow-[0_8px_24px_-8px_rgba(17,19,24,0.12)] text-xs"
                 style={{ transitionDelay: '560ms' }}
               >
-                <div className="w-8 h-8 rounded-lg bg-[#111318] text-white flex items-center justify-center shrink-0">
-                  <Plane className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-[3px] bg-[#111318] text-white flex items-center justify-center shrink-0">
+                  <Plane className="w-4 h-4 text-white" />
                 </div>
                 <div className="text-left">
-                  <div className="font-display font-bold text-[#111318] text-xs leading-tight">
-                    Devi Ahilya Bai Holkar Airport
+                  <div className="font-display font-bold text-[#111318] text-xs leading-tight tracking-tight">
+                    Devi Ahilya Bai Holkar Airport (IDR)
                   </div>
-                  <div className="font-mono text-[10px] text-[#555555] mt-0.5">
-                    Terminal 1 • Parking Bay 4 • 24/7 Dispatch
+                  <div className="font-mono text-[10px] text-[#666666] mt-0.5">
+                    Terminal 1 • Dedicated Bay 4 • 24/7 Handover
                   </div>
                 </div>
               </div>
