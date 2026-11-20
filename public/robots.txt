@@ -1,6 +1,9 @@
 # robots.txt for AirGo Cabs (https://www.airgocabs.com)
 
 # Explicit AI Search & Engine Bot Access (GEO / AEO Search Readiness)
+User-agent: Mediapartners-Google
+Allow: /
+
 User-agent: Googlebot
 Allow: /
 Disallow: /admin
